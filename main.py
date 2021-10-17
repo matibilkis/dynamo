@@ -18,6 +18,7 @@ L=args.L
 def P_0(eta):
     return np.max([eta, 1-eta])
 
+
 def Prob(n,alpha,beta):
     p0 = np.exp(-(alpha+beta)**2)
     if n==0:
@@ -36,17 +37,23 @@ def Postirior(n, alpha, beta, eta):
     po /= Prob_Outcome(n, alpha, beta, eta)
     return po
 
-def P_1(beta, eta):
+def P_1(beta, eta, alpha):
     p=0
+    beta = beta[0]
+    alpha = alpha[0]
+    eta = eta[0]
     for n in [0,1]:
         p+= Prob_Outcome(n, alpha, beta,eta)*P_0(Postirior(n, alpha, beta,eta))
     return 1-p
+
+
 
 def P_n(beta, eta,  model, at=1):
     p=0
     for n in [0,1]:
         p+=Prob_Outcome(n, at*alpha, beta, eta)*model(Postirior(n, at*alpha, beta, eta))
     return p
+
 
 def give_bounds(eta, alpha):
     if alpha < 1:
@@ -62,13 +69,14 @@ PS = np.zeros((L,2*len(etas_min)))
 BOPT = np.zeros((L,2*len(etas_min)))
 
 for el in range(L)[::-1]:
+    print(el, alpha)
     if el==L-1:
         for ind_eta, eta in enumerate(tqdm(etas_min)):
             if ind_eta == 0:
                 PS[el, ind_eta] = 0
                 BOPT[el,ind_eta]= alpha
             else:
-                optimization = optimize.minimize(P_1, BOPT[el, ind_eta-1], args=(eta), method="BFGS") #args=(eta), method="bounded", bounds = give_lim(eta,alpha))#, bonuds= bounds=((-2,2)))#, options={"maxiter":10**9, "xatol":1e-35})
+                optimization = optimize.dual_annealing(P_1, x0=np.array([ BOPT[el, ind_eta-1]]), args=([eta], [alpha/np.sqrt(L)]), bounds=give_bounds(eta, alpha))
                 PS[el,ind_eta]=optimization.fun
                 BOPT[el,ind_eta]=optimization.x
         PS[el,len(etas_min):] = PS[el,:len(etas_min)][::-1]
@@ -83,16 +91,13 @@ for el in range(L)[::-1]:
                 BOPT[el,ind_eta]= alpha
             else:
                 optimization  = optimize.dual_annealing(P_n, x0=np.array([ BOPT[el, ind_eta-1]]), args=(eta, model, 1/np.sqrt(L)), bounds=give_bounds(eta, alpha))
-                #optimization = optimize.minimize(P_n, BOPT[el, ind_eta-1], args=(eta, model, 1/np.sqrt(L)), method="BFGS") #args=(eta), method="bounded", bounds = give_lim(eta,alpha))#, bonuds= bounds=((-2,2)))#, options={"maxiter":10**9, "xatol":1e-35})
                 PS[el,ind_eta]=optimization.fun
                 BOPT[el,ind_eta]=optimization.x
         PS[el,len(etas_min):] = PS[el,:len(etas_min)][::-1]
         BOPT[el,len(etas_min):] = -BOPT[el,:len(etas_min)][::-1]
-
-
-    name = args.path+"/{}/{}".format(L,alpha)
-    os.makedirs(name, exist_ok=True)
-    np.save(name+"/Psuc", PS)
-    np.save(name+"/Bopt", BOPT)
-
     print("LAYER {}/{} DONE! \n".format(el+1, L))
+
+name = args.path+"/{}/{}".format(L,alpha)
+os.makedirs(name, exist_ok=True)
+np.save(name+"/Ps", PS)
+np.save(name+"/Bo", BOPT)
