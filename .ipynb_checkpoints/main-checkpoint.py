@@ -61,7 +61,7 @@ def give_bounds(eta, alpha):
     else:
         return [((-1.5*alpha,1.5*alpha))]
 
-
+    
 etas_min = np.linspace(0,.5,100)
 whole_etas = np.concatenate([etas_min, (1-etas_min)[::-1]])
 
@@ -85,7 +85,7 @@ for el in range(L)[::-1]:
     else:
         model = interpolate.Rbf(whole_etas, PS[el+1], smooth=0.01, epsilon=1e-2)
         for ind_eta, eta in enumerate(tqdm(etas_min)):
-
+            
             if ind_eta == 0:
                 PS[el, ind_eta] = 0
                 BOPT[el,ind_eta]= alpha
@@ -96,8 +96,9 @@ for el in range(L)[::-1]:
         PS[el,len(etas_min):] = PS[el,:len(etas_min)][::-1]
         BOPT[el,len(etas_min):] = -BOPT[el,:len(etas_min)][::-1]
     print("LAYER {}/{} DONE! \n".format(el+1, L))
-
+    
 name = args.path+"/{}/{}".format(L,alpha)
 os.makedirs(name, exist_ok=True)
 np.save(name+"/Ps", PS)
 np.save(name+"/Bo", BOPT)
+
