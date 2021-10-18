@@ -1,0 +1,11 @@
+executable=subash.sh
+
+output = jobs/outs/$(Item)_$(L).out
+error = jobs/errs/$(Item)_$(L).err
+log = jobs/logs/$(Item)_$(L).log
+request_cpus = 1
++flavour="short"
+
+L=30
+args=$(Item) $(L)
+queue from seq 0.01 0.01 1.5|
