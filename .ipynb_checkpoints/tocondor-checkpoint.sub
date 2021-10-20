@@ -1,12 +1,34 @@
 executable=subash.sh
 
-output = ~/jobs/outs/$(Item)_$(L).out
-error = ~/jobs/errs/$(Item)_$(L).err
-log = ~/jobs/logs/$(Item)_$(L).log
+output = ../jobs/outs/$(Item)_$(L).out
+error = ../jobs/errs/$(Item)_$(L).err
+log = ../jobs/logs/$(Item)_$(L).log
 request_cpus = 1
 +flavour="short"
 
-L=1
+L=4
 ch=0.01
 args=$(Item) $(L) $(ch)
-queue from seq 0.01 0.05 1.05|
+queue from seq 0.01 0.05 3.0|
+
+L=5
+ch=0.01
+args=$(Item) $(L) $(ch)
+queue from seq 0.01 0.05 3.0|
+
+
+L=6
+ch=0.01
+args=$(Item) $(L) $(ch)
+queue from seq 0.01 0.05 3.0|
+
+
+L=7
+ch=0.01
+args=$(Item) $(L) $(ch)
+queue from seq 0.01 0.05 3.0|
+
+L=8
+ch=0.01
+args=$(Item) $(L) $(ch)
+queue from seq 0.01 0.05 3.0|

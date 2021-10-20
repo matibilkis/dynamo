@@ -11,13 +11,13 @@ parser.add_argument("--alpha", type=float, default=0.4)
 parser.add_argument("--L", type=int, default=3)
 parser.add_argument("--Npriors", type=int, default=100)
 parser.add_argument("--channel_params",nargs="+", default=[0.01, 1.])
-parser.add_argument("--path", type=str, default="/data/uab-giq/scratch/matias/")
+parser.add_argument("--path", type=str, default="/data/uab-giq/scratch/matias/dynamo")
 
 args = parser.parse_args()
 alpha = args.alpha
 L=args.L
 Npriors = args.Npriors
-channel_params = np.array([float(k) for k in args.channel_params])
+channel_params = np.array([np.round(float(k),2) for k in args.channel_params])
 
 
 def P_0(eta):
@@ -25,6 +25,8 @@ def P_0(eta):
 
 def Prob(n,alpha,beta):
     p0=0
+ #   p0 +=np.exp(-(alpha+beta)**2)
+    
     for param in channel_params:
         p0 +=np.exp(-((np.sqrt(param)*(alpha))+beta)**2)*0.5
     if n==0:
@@ -104,7 +106,7 @@ for el in range(L)[::-1]:
     print("LAYER {}/{} DONE! \n".format(el+1, L))
 
 
-name = args.path+"/{}/{}".format(L,alpha)
+name = args.path+"/{}/{}/{}".format(channel_params,L,alpha)
 #name = args.path+"/{}/{}".format(L,alpha)
 os.makedirs(name, exist_ok=True)
 np.save(name+"/Ps", PS)
