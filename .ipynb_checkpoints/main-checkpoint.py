@@ -83,22 +83,22 @@ for el in range(L)[::-1]:
                 PS[el, ind_eta] = 0
                 BOPT[el,ind_eta]= alpha
             else:
-                optimization = optimize.dual_annealing(P_1, x0=np.array([ BOPT[el, ind_eta-1]]), args=([eta], [alpha/np.sqrt(L)]), bounds=give_bounds(eta, alpha))
+                optimization = optimize.dual_annealing(P_1, x0=np.array([ BOPT[el, ind_eta-1]]), args=([eta], [alpha/np.sqrt(L)]), bounds=give_bounds(eta, alpha), maxiter=5000)
                 PS[el,ind_eta]=optimization.fun
                 BOPT[el,ind_eta]=optimization.x
         PS[el,len(etas_min):] = PS[el,:len(etas_min)][::-1]
         BOPT[el,len(etas_min):] = -BOPT[el,:len(etas_min)][::-1]
 
     else:
-        model = interpolate.interp1d(whole_etas, PS[el+1])#bs[layer-1, inda,:])
-        #model = interpolate.Rbf(whole_etas, PS[el+1], smooth=0.01, epsilon=1e-2)
+        #model = interpolate.interp1d(whole_etas, PS[el+1])#bs[layer-1, inda,:])
+        model = interpolate.Rbf(whole_etas, PS[el+1], smooth=0.01, epsilon=1e-2)
         for ind_eta, eta in enumerate(tqdm(etas_min)):
 
             if ind_eta == 0:
                 PS[el, ind_eta] = 0
                 BOPT[el,ind_eta]= alpha
             else:
-                optimization  = optimize.dual_annealing(P_n, x0=np.array([ BOPT[el, ind_eta-1]]), args=(eta, model, 1/np.sqrt(L)), bounds=give_bounds(eta, alpha))
+                optimization  = optimize.dual_annealing(P_n, x0=np.array([ BOPT[el, ind_eta-1]]), args=(eta, model, 1/np.sqrt(L)), bounds=give_bounds(eta, alpha), maxiter=5000)
                 PS[el,ind_eta]=optimization.fun
                 BOPT[el,ind_eta]=optimization.x
         PS[el,len(etas_min):] = PS[el,:len(etas_min)][::-1]
